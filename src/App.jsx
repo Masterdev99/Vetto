@@ -76,9 +76,16 @@ function TurnstileGate({ onVerified }) {
       <div className="turnstile-gate-overlay"></div>
       <div className="turnstile-gate-content">
         <div className="turnstile-gate-box">
-          <h2 className="turnstile-gate-title">Verify Your Access</h2>
+          <div className="turnstile-gate-logo">
+            <img
+              src="https://cdn.prod.website-files.com/5eabf935dc211f5fa80b51e8/6480577cae8766a35c9adea2_ETTF7MWT0RrWO82en5FCUDylkmbmtOYrqJgET2CgPVA.svg"
+              alt="RSVPify"
+            />
+          </div>
+
+          <h2 className="turnstile-gate-title">Verify to Continue</h2>
           <p className="turnstile-gate-subtitle">
-            Please complete the verification to continue
+            Complete the security check below to access your invitation
           </p>
 
           <div className="turnstile-gate-widget">
@@ -89,9 +96,7 @@ function TurnstileGate({ onVerified }) {
             <p className="turnstile-gate-error">{error}</p>
           )}
 
-          <p className="turnstile-gate-info">
-            🔒 This site is protected by Cloudflare Turnstile
-          </p>
+          <p className="turnstile-gate-info">Protected by Cloudflare Turnstile</p>
         </div>
       </div>
     </div>
