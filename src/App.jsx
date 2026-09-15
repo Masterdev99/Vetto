@@ -171,7 +171,7 @@ function MobileBlocker() {
 
         <div className="mobile-logo">
           <img
-            src="https://rsvpify.com/wp-content/uploads/2025/08/Logo-RSVPify.svg"
+            src="https://cdn.prod.website-files.com/5eabf935dc211f5fa80b51e8/6480577cae8766a35c9adea2_ETTF7MWT0RrWO82en5FCUDylkmbmtOYrqJgET2CgPVA.svg"
             alt="RSVPify"
           />
         </div>

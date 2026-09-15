@@ -93,12 +93,11 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  min-height: 50px;
 }
 
 .logo img {
-  max-height: 40px;
-  max-width: 150px;
+  height: 36px;
+  width: auto;
   object-fit: contain;
 }
 
@@ -276,7 +275,8 @@ h1 {
 }
 
 .mobile-logo img {
-  max-height: 40px;
+  height: 36px;
+  width: auto;
   object-fit: contain;
 }
 
@@ -388,7 +388,8 @@ h1 {
 }
 
 .turnstile-gate-logo img {
-  height: 30px;
+  height: 36px;
+  width: auto;
   object-fit: contain;
 }
 
